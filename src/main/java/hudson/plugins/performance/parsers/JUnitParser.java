@@ -89,6 +89,20 @@ public class JUnitParser extends AbstractParser {
 		    } catch (Exception e) {
 			currentSample.setDate(new Date(0));
 		    }
+                    
+                    final String sizeInKbValue;
+                    if (attributes.getValue("bytes") != null) {
+                        sizeInKbValue = attributes.getValue("bytes");
+                    } else {
+                        sizeInKbValue = "0";
+                    }
+                    
+                    try {
+                        currentSample.setSizeInKb(Double.valueOf(sizeInKbValue) / 1024d);
+		    } catch (Exception e) {
+                        // Do Nothing
+		    }
+                    
                     String time = attributes.getValue("time");
                     currentSample.setDuration(parseDuration(time));
                     currentSample.setSuccessful(true);
