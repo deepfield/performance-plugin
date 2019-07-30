@@ -336,6 +336,93 @@ public class PerformanceReportMap implements ModelObject {
                 createRespondingTimeChart(dataSetBuilder.build(), limit), 600, 200);
     }
 
+
+    public void doTotalKbGraphPerTestCaseMode(
+            StaplerRequest request, StaplerResponse response) throws IOException {
+        final String performanceReportNameFile = request.getParameter("performanceReportPosition");
+        if (performanceReportNameFile == null) {
+            return;
+        }
+
+        if (ChartUtil.awtProblemCause != null) {
+            // not available. send out error message
+            response.sendRedirect2(request.getContextPath() + "/images/headless.png");
+            return;
+        }
+
+        final DataSetBuilder<String, NumberOnlyBuildLabel> dataSetBuilder = new DataSetBuilder<>();
+        List<? extends Run<?, ?>> builds = buildAction.getBuild().getParent().getBuilds();
+        
+        // There is a better way to do this. Will I do it? No. Why? Read getPublisher() and find out.
+        PerformancePublisher tmp = getPublisher();
+        PerformancePublisher publisher = new PerformancePublisher(tmp.getSourceDataFiles());
+        publisher.setGraphType(PerformancePublisher.TMU);
+        ReportValueSelector valueSelector = ReportValueSelector.get(publisher);
+
+
+        for (Run<?, ?> build : builds) {
+                NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
+
+            final PerformanceBuildAction performanceBuildAction = build.getAction(PerformanceBuildAction.class);
+            if (performanceBuildAction == null) {
+                continue;
+            }
+
+            final PerformanceReport performanceReport = performanceBuildAction
+                    .getPerformanceReportMap().getPerformanceReport(performanceReportNameFile);
+            if (performanceReport == null) {
+                continue;
+            }
+
+            List<UriReport> uriListOrdered = performanceReport.getUriListOrdered();
+            for (UriReport uriReport : uriListOrdered) {
+                dataSetBuilder.add(valueSelector.getValue(uriReport), uriReport.getUri(), label);
+            }
+        }
+
+        String legendLimit = request.getParameter("legendLimit");
+        int limit = (legendLimit != null && !legendLimit.isEmpty()) ? Integer.parseInt(legendLimit) : Integer.MAX_VALUE;
+        ChartUtil.generateGraph(request, response,
+                createTotalKbChart(dataSetBuilder.build(), limit), 600, 200);
+    }
+
+    public void doTotalKbGraph(StaplerRequest request, StaplerResponse response)
+            throws IOException {
+        final String performanceReportNameFile = request.getParameter("performanceReportPosition");
+        if (performanceReportNameFile == null) {
+            return;
+        }
+
+        if (ChartUtil.awtProblemCause != null) {
+            // not available. send out error message
+            response.sendRedirect2(request.getContextPath() + "/images/headless.png");
+            return;
+        }
+        DataSetBuilder<String, NumberOnlyBuildLabel> dataSetBuilderAvgKb = new DataSetBuilder<String, NumberOnlyBuildLabel>();
+        List<? extends Run<?, ?>> builds = buildAction.getBuild().getParent().getBuilds();
+
+        for (Run<?, ?> currentBuild : builds) {
+                NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(currentBuild);
+                PerformanceBuildAction performanceBuildAction = currentBuild
+                        .getAction(PerformanceBuildAction.class);
+
+                if (performanceBuildAction == null) {
+                    continue;
+                }
+                PerformanceReport performanceReport = performanceBuildAction
+                        .getPerformanceReportMap().getPerformanceReport(
+                                performanceReportNameFile);
+                if (performanceReport == null) {
+                    continue;
+                }
+
+                dataSetBuilderAvgKb.add(performanceReport.getAverageSizeInKb(),
+                        Messages.ProjectAction_TotalTrafficKB(), label);
+        }
+        ChartUtil.generateGraph(request, response,
+                createTotalKbChart(dataSetBuilderAvgKb.build()), 400, 200);
+    }
+
     public void doErrorsGraph(StaplerRequest request, StaplerResponse response)
             throws IOException {
         final String performanceReportNameFile = request.getParameter("performanceReportPosition");
@@ -377,6 +464,13 @@ public class PerformanceReportMap implements ModelObject {
         return PerformanceProjectAction.createErrorsChart(dataset);
     }
 
+    protected JFreeChart createTotalKbChart(CategoryDataset dataset) {
+        return PerformanceProjectAction.createTotalKbChart(dataset);
+    }
+
+    protected JFreeChart createTotalKbChart(CategoryDataset dataset, int legendLimit) {
+        return PerformanceProjectAction.createTotalKbChart(dataset, legendLimit);
+    }
 
     protected JFreeChart createRespondingTimeChart(CategoryDataset dataset, int legendLimit) {
         return PerformanceProjectAction.doCreateRespondingTimeChart(dataset, legendLimit);

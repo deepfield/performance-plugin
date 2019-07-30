@@ -115,6 +115,10 @@ public class PerformancePublisher extends Recorder implements SimpleBuildStep {
 
     public static final String PRT = "PRT";
 
+    public static final String AMU = "AMU";
+
+    public static final String TMU = "TMU";
+
     public String optionType = "ART";
 
     private static final String ARCHIVE_DIRECTORY = "archive";
