@@ -462,6 +462,54 @@ public class PerformanceProjectAction implements Action {
                 createTotalKbChart(dataSetBuilderAvgKb.build()), 400, 200);
     }
 
+    public void doTotalKbGraphPerTestCaseMode(
+            StaplerRequest request, StaplerResponse response) throws IOException {
+        final String performanceReportNameFile = getPerformanceReportNameFile(request);
+        if (performanceReportNameFile == null) {
+            return;
+        }
+
+        if (ChartUtil.awtProblemCause != null) {
+            // not available. send out error message
+            response.sendRedirect2(request.getContextPath() + "/images/headless.png");
+            return;
+        }
+        DataSetBuilder<String, NumberOnlyBuildLabel> dataSetBuilder = new DataSetBuilder<>();
+        
+        
+        ReportValueSelector valueSelector = new ReportValueSelector.SelectTotalKb();
+        
+        List<? extends Run<?, ?>> builds = getJob().getBuilds();
+        Range buildsLimits = getFirstAndLastBuild(request, builds);
+
+        int nbBuildsToAnalyze = builds.size();
+
+        for (Run<?, ?> build : builds) {
+            if (buildsLimits.in(nbBuildsToAnalyze)) {
+                NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
+
+                if (!buildsLimits.includedByStep(build.number)) {
+                    continue;
+                }
+                PerformanceReport performanceReport = getPerformanceReport(build, performanceReportNameFile);
+                if (performanceReport == null) {
+                    nbBuildsToAnalyze--;
+                    continue;
+                }
+
+                List<UriReport> uriListOrdered = performanceReport.getUriListOrdered();
+                for (UriReport uriReport : uriListOrdered) {
+                    dataSetBuilder.add(valueSelector.getValue(uriReport), uriReport.getUri(), label);
+                }
+            }
+            nbBuildsToAnalyze--;
+        }
+        String legendLimit = request.getParameter("legendLimit");
+        int limit = (legendLimit != null && !legendLimit.isEmpty()) ? Integer.parseInt(legendLimit) : Integer.MAX_VALUE;
+        ChartUtil.generateGraph(request, response,
+                createTotalKbChart(dataSetBuilder.build(), limit), 600, 200);
+    }
+
     public void doErrorsGraph(StaplerRequest request, StaplerResponse response)
             throws IOException {
         final String performanceReportNameFile = getPerformanceReportNameFile(request);

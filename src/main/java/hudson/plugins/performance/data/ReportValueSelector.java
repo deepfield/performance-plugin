@@ -39,7 +39,8 @@ public abstract class ReportValueSelector {
         return new SelectAverage(); // default
     }
 
-    private static class SelectTotalKb extends ReportValueSelector {
+    // Public. Why not.
+    public static class SelectTotalKb extends ReportValueSelector {
 
         @Override
         public long getValue(AbstractReport report) {
@@ -52,7 +53,8 @@ public abstract class ReportValueSelector {
         }
     }
 
-    private static class SelectAverageKb extends ReportValueSelector {
+    // Public. Why not.
+    public static class SelectAverageKb extends ReportValueSelector {
 
         @Override
         public long getValue(AbstractReport report) {
