@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 public class JUnitParser extends AbstractParser {
 
     public static final String ISO8601_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    public boolean ignoreSkipped = true;
     
     @Extension
     public static class DescriptorImpl extends PerformanceReportParserDescriptor {
@@ -127,6 +128,8 @@ public class JUnitParser extends AbstractParser {
                     currentSample.setErrorObtained(false);
                     currentSample.setSuccessful(false);
                     report.addSample(currentSample);
+                    status = 0;
+                } else if (ignoreSkipped && status != 0 && "skipped".equalsIgnoreCase(qName)) {
                     status = 0;
                 } else if ("error".equalsIgnoreCase(qName) && status != 0) {
                     currentSample.setErrorObtained(true);
