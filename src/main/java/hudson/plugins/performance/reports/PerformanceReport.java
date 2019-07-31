@@ -82,6 +82,7 @@ public class PerformanceReport extends AbstractReport implements Serializable,
      * The size of all samples combined, in kilobytes.
      */
     private double totalSizeInKB = 0;
+    private double avgSizeInKB = 0;
     private long summarizerMin;
     private long summarizerMax;
     private long summarizerAvg;
@@ -181,6 +182,7 @@ public class PerformanceReport extends AbstractReport implements Serializable,
             totalDuration += pHttpSample.getDuration();
         }
         totalSizeInKB += pHttpSample.getSizeInKb();
+        avgSizeInKB += pHttpSample.getAvgSizeInKb();
     }
 
     private boolean isIncluded(String name) {
@@ -281,7 +283,7 @@ public class PerformanceReport extends AbstractReport implements Serializable,
         if (samplesCount == 0) {
             return 0;
         }
-        return SafeMaths.roundTwoDecimals(SafeMaths.safeDivide(totalSizeInKB, samplesCount));
+        return SafeMaths.roundTwoDecimals(SafeMaths.safeDivide(avgSizeInKB, samplesCount));
     }
 
     /**

@@ -39,7 +39,7 @@ public abstract class ReportValueSelector {
         return new SelectAverage(); // default
     }
 
-    // Public. Why not.
+    // Public. The alternative is worse
     public static class SelectTotalKb extends ReportValueSelector {
 
         @Override
@@ -49,11 +49,11 @@ public abstract class ReportValueSelector {
 
         @Override
         public String getGraphType() {
-            return PerformancePublisher.ART;
+            return PerformancePublisher.TMU;
         }
     }
 
-    // Public. Why not.
+    // Public. The alternative is worse
     public static class SelectAverageKb extends ReportValueSelector {
 
         @Override
@@ -63,7 +63,7 @@ public abstract class ReportValueSelector {
 
         @Override
         public String getGraphType() {
-            return PerformancePublisher.ART;
+            return PerformancePublisher.AMU;
         }
     }
 

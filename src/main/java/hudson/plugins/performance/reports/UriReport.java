@@ -124,6 +124,7 @@ public class UriReport extends AbstractReport implements Serializable, ModelObje
     protected String percentiles;
 
     private double sizeInKb;
+    private double avgSizeInKb;
 
     public Object readResolve() {
         checkPercentileAndSet(0.0, perc0);
@@ -160,6 +161,7 @@ public class UriReport extends AbstractReport implements Serializable, ModelObje
         summarizerSize += sample.getSummarizerSamples();
         summarizerErrors += sample.getSummarizerErrors();
         sizeInKb += sample.getSizeInKb();
+        avgSizeInKb += sample.getAvgSizeInKb();
         
         if (start == null || sample.getDate().before(start)) {
             start = sample.getDate();
@@ -547,7 +549,7 @@ public class UriReport extends AbstractReport implements Serializable, ModelObje
     }
 
     public double getAverageSizeInKb() {
-        return SafeMaths.roundTwoDecimals(SafeMaths.safeDivide(sizeInKb, samplesCount()));
+        return SafeMaths.roundTwoDecimals(SafeMaths.safeDivide(avgSizeInKb, samplesCount()));
     }
     
     public double getTotalTrafficInKb() {

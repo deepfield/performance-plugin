@@ -27,6 +27,8 @@ public class HttpSample implements Serializable, Comparable<HttpSample> {
     private String httpCode = "";
 
     private double sizeInKb;
+    
+    private double avgSizeInKb;
 
     // Summarizer fields
     private boolean isSummarizer;
@@ -133,6 +135,14 @@ public class HttpSample implements Serializable, Comparable<HttpSample> {
 
     public void setSizeInKb(double d) {
         this.sizeInKb = d;
+    }
+
+    public double getAvgSizeInKb() {
+        return avgSizeInKb;
+    }
+
+    public void setAvgSizeInKb(double d) {
+        this.avgSizeInKb = d;
     }
 
     public boolean isErrorObtained() {

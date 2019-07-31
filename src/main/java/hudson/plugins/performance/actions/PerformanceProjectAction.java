@@ -193,6 +193,55 @@ public class PerformanceProjectAction implements Action {
         return chart;
     }
 
+    public static JFreeChart createAvgKbChart(CategoryDataset dataset) {
+
+        final JFreeChart chart = ChartFactory.createLineChart(
+                Messages.ProjectAction_AverageKB(), // chart title
+                null, // unused
+                "kB", // range axis label
+                dataset, // data
+                PlotOrientation.VERTICAL, // orientation
+                true, // include legend
+                true, // tooltips
+                false // urls
+        );
+
+        // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
+
+        final LegendTitle legend = chart.getLegend();
+        legend.setPosition(RectangleEdge.BOTTOM);
+
+        chart.setBackgroundPaint(Color.WHITE);
+
+        final CategoryPlot plot = chart.getCategoryPlot();
+
+        // plot.setAxisOffset(new Spacer(Spacer.ABSOLUTE, 5.0, 5.0, 5.0, 5.0));
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setOutlinePaint(null);
+        plot.setRangeGridlinesVisible(true);
+        plot.setRangeGridlinePaint(Color.BLACK);
+
+        CategoryAxis domainAxis = new ShiftedCategoryAxis(null);
+        plot.setDomainAxis(domainAxis);
+        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+        domainAxis.setLowerMargin(0.0);
+        domainAxis.setUpperMargin(0.0);
+        domainAxis.setCategoryMargin(0.0);
+
+        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+        final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot
+                .getRenderer();
+        renderer.setBaseStroke(new BasicStroke(4.0f));
+        ColorPalette.apply(renderer);
+
+        // crop extra space around the graph
+        plot.setInsets(new RectangleInsets(5.0, 0, 0, 5.0));
+
+        return chart;
+    }
+
     public static JFreeChart doCreateRespondingTimeChart(CategoryDataset dataset, int legendLimit) {
 
         final JFreeChart chart = ChartFactory.createLineChart(
@@ -246,6 +295,55 @@ public class PerformanceProjectAction implements Action {
 
         final JFreeChart chart = ChartFactory.createLineChart(
                 Messages.ProjectAction_TotalTrafficKB(), // charttitle
+                null, // unused
+                "kB", // range axis label
+                dataset, // data
+                PlotOrientation.VERTICAL, // orientation
+                true, // include legend
+                true, // tooltips
+                false // urls
+        );
+        final LegendTitle legend = chart.getLegend();
+        legend.setPosition(RectangleEdge.BOTTOM);
+        if (dataset.getRowCount() > legendLimit) {
+            chart.removeLegend();
+        }
+
+        chart.setBackgroundPaint(Color.WHITE);
+
+        final CategoryPlot plot = chart.getCategoryPlot();
+
+//         plot.setAxisOffset(new Spacer(Spacer.ABSOLUTE, 5.0, 5.0, 5.0, 5.0));
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setOutlinePaint(null);
+        plot.setRangeGridlinesVisible(true);
+        plot.setRangeGridlinePaint(Color.BLACK);
+
+        CategoryAxis domainAxis = new ShiftedCategoryAxis(null);
+        plot.setDomainAxis(domainAxis);
+        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+        domainAxis.setLowerMargin(0.0);
+        domainAxis.setUpperMargin(0.0);
+        domainAxis.setCategoryMargin(0.0);
+
+        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+        final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot
+                .getRenderer();
+        renderer.setBaseStroke(new BasicStroke(4.0f));
+        ColorPalette.apply(renderer);
+
+        // crop extra space around the graph
+        plot.setInsets(new RectangleInsets(5.0, 0, 0, 5.0));
+
+        return chart;
+    }
+
+    public static JFreeChart createAvgKbChart(CategoryDataset dataset, int legendLimit) {
+
+        final JFreeChart chart = ChartFactory.createLineChart(
+                Messages.ProjectAction_AverageKB(), // charttitle
                 null, // unused
                 "kB", // range axis label
                 dataset, // data
@@ -454,7 +552,7 @@ public class PerformanceProjectAction implements Action {
                     continue;
                 }
                 dataSetBuilderAvgKb.add(performanceReport.getTotalTrafficInKb(),
-                        Messages.ProjectAction_Errors(), label);
+                        Messages.ProjectAction_TotalTrafficKB(), label);
             }
             nbBuildsToAnalyze--;
         }
@@ -508,6 +606,100 @@ public class PerformanceProjectAction implements Action {
         int limit = (legendLimit != null && !legendLimit.isEmpty()) ? Integer.parseInt(legendLimit) : Integer.MAX_VALUE;
         ChartUtil.generateGraph(request, response,
                 createTotalKbChart(dataSetBuilder.build(), limit), 600, 200);
+    }
+    
+    public void doAvgKbGraph(StaplerRequest request, StaplerResponse response) 
+            throws IOException {
+        final String performanceReportNameFile = getPerformanceReportNameFile(request);
+        if (performanceReportNameFile == null) {
+            return;
+        }
+
+        if (ChartUtil.awtProblemCause != null) {
+            // not available. send out error message
+            response.sendRedirect2(request.getContextPath() + "/images/headless.png");
+            return;
+        }
+        DataSetBuilder<String, NumberOnlyBuildLabel> dataSetBuilderAvgKb = new DataSetBuilder<>();
+        List<? extends Run<?, ?>> builds = getJob().getBuilds();
+        Range buildsLimits = getFirstAndLastBuild(request, builds);
+
+        int nbBuildsToAnalyze = builds.size();
+        for (Run<?, ?> currentBuild : builds) {
+            if (buildsLimits.in(nbBuildsToAnalyze)) {
+
+                if (!buildsLimits.includedByStep(currentBuild.number)) {
+                    continue;
+                }
+
+                NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(currentBuild);
+                PerformanceBuildAction performanceBuildAction = currentBuild
+                        .getAction(PerformanceBuildAction.class);
+                if (performanceBuildAction == null) {
+                    continue;
+                }
+                PerformanceReport performanceReport = performanceBuildAction
+                        .getPerformanceReportMap().getPerformanceReport(
+                                performanceReportNameFile);
+                if (performanceReport == null) {
+                    nbBuildsToAnalyze--;
+                    continue;
+                }
+                dataSetBuilderAvgKb.add(performanceReport.getAverageSizeInKb(),
+                        Messages.ProjectAction_AverageKB(), label);
+            }
+            nbBuildsToAnalyze--;
+        }
+        ChartUtil.generateGraph(request, response,
+                createAvgKbChart(dataSetBuilderAvgKb.build()), 400, 200);
+    }
+
+    public void doAvgKbGraphPerTestCaseMode(
+            StaplerRequest request, StaplerResponse response) throws IOException {
+        final String performanceReportNameFile = getPerformanceReportNameFile(request);
+        if (performanceReportNameFile == null) {
+            return;
+        }
+
+        if (ChartUtil.awtProblemCause != null) {
+            // not available. send out error message
+            response.sendRedirect2(request.getContextPath() + "/images/headless.png");
+            return;
+        }
+        DataSetBuilder<String, NumberOnlyBuildLabel> dataSetBuilder = new DataSetBuilder<>();
+        
+        
+        ReportValueSelector valueSelector = new ReportValueSelector.SelectAverageKb();
+        
+        List<? extends Run<?, ?>> builds = getJob().getBuilds();
+        Range buildsLimits = getFirstAndLastBuild(request, builds);
+
+        int nbBuildsToAnalyze = builds.size();
+
+        for (Run<?, ?> build : builds) {
+            if (buildsLimits.in(nbBuildsToAnalyze)) {
+                NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
+
+                if (!buildsLimits.includedByStep(build.number)) {
+                    continue;
+                }
+                PerformanceReport performanceReport = getPerformanceReport(build, performanceReportNameFile);
+                if (performanceReport == null) {
+                    nbBuildsToAnalyze--;
+                    continue;
+                }
+
+                List<UriReport> uriListOrdered = performanceReport.getUriListOrdered();
+                for (UriReport uriReport : uriListOrdered) {
+                    dataSetBuilder.add(valueSelector.getValue(uriReport), uriReport.getUri(), label);
+                }
+            }
+            nbBuildsToAnalyze--;
+        }
+        String legendLimit = request.getParameter("legendLimit");
+        int limit = (legendLimit != null && !legendLimit.isEmpty()) ? Integer.parseInt(legendLimit) : Integer.MAX_VALUE;
+        ChartUtil.generateGraph(request, response,
+                createAvgKbChart(dataSetBuilder.build(), limit), 600, 200);
     }
 
     public void doErrorsGraph(StaplerRequest request, StaplerResponse response)

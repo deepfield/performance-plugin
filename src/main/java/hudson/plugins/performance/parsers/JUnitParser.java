@@ -90,15 +90,30 @@ public class JUnitParser extends AbstractParser {
 			currentSample.setDate(new Date(0));
 		    }
                     
-                    final String sizeInKbValue;
-                    if (attributes.getValue("bytes") != null) {
-                        sizeInKbValue = attributes.getValue("bytes");
+                    // Add total mem usage to stats
+                    final String maxKbValue;
+                    if (attributes.getValue("totalbytes") != null) {
+                        maxKbValue = attributes.getValue("totalbytes");
                     } else {
-                        sizeInKbValue = "0";
+                        maxKbValue = "0";
                     }
                     
                     try {
-                        currentSample.setSizeInKb(Double.valueOf(sizeInKbValue) / 1024d);
+                        currentSample.setSizeInKb(Double.valueOf(maxKbValue) / 1024d);
+		    } catch (Exception e) {
+                        // Do Nothing
+		    }
+                    
+                    // Add avg mem usage to stats
+                    final String avgKbValue;
+                    if (attributes.getValue("avgbytes") != null) {
+                        avgKbValue = attributes.getValue("avgbytes");
+                    } else {
+                        avgKbValue = "0";
+                    }
+                    
+                    try {
+                        currentSample.setAvgSizeInKb(Double.valueOf(avgKbValue) / 1024d);
 		    } catch (Exception e) {
                         // Do Nothing
 		    }

@@ -24,6 +24,9 @@
                     <a href="./totalKbGraphPerTestCaseMode?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport.getReportFileName()}" title="${%Click for larger image}">
                         <img class="trend" src="./totalKbGraphPerTestCaseMode?width=600&amp;height=225&amp;legendLimit=5&amp;performanceReportPosition=${performanceReport.getReportFileName()}" width="600" height="225" />
                     </a>
+                    <a href="./avgKbGraphPerTestCaseMode?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport.getReportFileName()}" title="${%Click for larger image}">
+                        <img class="trend" src="./avgKbGraphPerTestCaseMode?width=600&amp;height=225&amp;legendLimit=5&amp;performanceReportPosition=${performanceReport.getReportFileName()}" width="600" height="225" />
+                    </a>
                 </j:when>
                 <j:otherwise>
                     <a href="./respondingTimeGraph?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport.getReportFileName()}" title="${%Click for larger image}">
@@ -31,6 +34,9 @@
                     </a>
                     <a href="./totalKbGraph?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport.getReportFileName()}" title="${%Click for larger image}">
                         <img class="trend" src="./totalKbGraph?width=600&amp;height=225&amp;legendLimit=5&amp;performanceReportPosition=${performanceReport.getReportFileName()}" width="600" height="225" />
+                    </a>
+                    <a href="./avgKbGraph?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport.getReportFileName()}" title="${%Click for larger image}">
+                        <img class="trend" src="./avgKbGraph?width=600&amp;height=225&amp;legendLimit=5&amp;performanceReportPosition=${performanceReport.getReportFileName()}" width="600" height="225" />
                     </a>
                 </j:otherwise>
             </j:choose>
