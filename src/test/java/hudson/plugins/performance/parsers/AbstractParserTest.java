@@ -19,7 +19,7 @@ public class AbstractParserTest {
         assertNotNull(report);
         report = AbstractParser.loadSerializedReport(reportFile); // subsequent calls should be cached
         assertNotNull(report);
-        assertEquals("totalDuration", 2030.47, report.getTotalTrafficInKb(), 0.001);
+        assertEquals("totalDuration", 2030.47, report.getMaxKb(), 0.001);
         assertEquals("samples count", 200, report.samplesCount());
     }
 

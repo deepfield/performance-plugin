@@ -144,10 +144,10 @@ public class PerformanceProjectAction implements Action {
         return chart;
     }
 
-    public static JFreeChart createTotalKbChart(CategoryDataset dataset) {
+    public static JFreeChart createMaxKbChart(CategoryDataset dataset) {
 
         final JFreeChart chart = ChartFactory.createLineChart(
-                Messages.ProjectAction_TotalTrafficKB(), // chart title
+                Messages.ProjectAction_MaximumKB(), // chart title
                 null, // unused
                 "kB", // range axis label
                 dataset, // data
@@ -291,10 +291,10 @@ public class PerformanceProjectAction implements Action {
         return chart;
     }
 
-    public static JFreeChart createTotalKbChart(CategoryDataset dataset, int legendLimit) {
+    public static JFreeChart createMaxKbChart(CategoryDataset dataset, int legendLimit) {
 
         final JFreeChart chart = ChartFactory.createLineChart(
-                Messages.ProjectAction_TotalTrafficKB(), // charttitle
+                Messages.ProjectAction_MaximumKB(), // charttitle
                 null, // unused
                 "kB", // range axis label
                 dataset, // data
@@ -514,7 +514,7 @@ public class PerformanceProjectAction implements Action {
         return performanceReportNameFile;
     }
     
-    public void doTotalKbGraph(StaplerRequest request, StaplerResponse response) 
+    public void doMaxKbGraph(StaplerRequest request, StaplerResponse response) 
             throws IOException {
         final String performanceReportNameFile = getPerformanceReportNameFile(request);
         if (performanceReportNameFile == null) {
@@ -551,16 +551,16 @@ public class PerformanceProjectAction implements Action {
                     nbBuildsToAnalyze--;
                     continue;
                 }
-                dataSetBuilderAvgKb.add(performanceReport.getTotalTrafficInKb(),
-                        Messages.ProjectAction_TotalTrafficKB(), label);
+                dataSetBuilderAvgKb.add(performanceReport.getMaxKb(),
+                        Messages.ProjectAction_Maximum(), label);
             }
             nbBuildsToAnalyze--;
         }
         ChartUtil.generateGraph(request, response,
-                createTotalKbChart(dataSetBuilderAvgKb.build()), 400, 200);
+                PerformanceProjectAction.createMaxKbChart(dataSetBuilderAvgKb.build()), 400, 200);
     }
 
-    public void doTotalKbGraphPerTestCaseMode(
+    public void doMaxKbGraphPerTestCaseMode(
             StaplerRequest request, StaplerResponse response) throws IOException {
         final String performanceReportNameFile = getPerformanceReportNameFile(request);
         if (performanceReportNameFile == null) {
@@ -575,7 +575,7 @@ public class PerformanceProjectAction implements Action {
         DataSetBuilder<String, NumberOnlyBuildLabel> dataSetBuilder = new DataSetBuilder<>();
         
         
-        ReportValueSelector valueSelector = new ReportValueSelector.SelectTotalKb();
+        ReportValueSelector valueSelector = new ReportValueSelector.SelectMaxKb();
         
         List<? extends Run<?, ?>> builds = getJob().getBuilds();
         Range buildsLimits = getFirstAndLastBuild(request, builds);
@@ -605,7 +605,7 @@ public class PerformanceProjectAction implements Action {
         String legendLimit = request.getParameter("legendLimit");
         int limit = (legendLimit != null && !legendLimit.isEmpty()) ? Integer.parseInt(legendLimit) : Integer.MAX_VALUE;
         ChartUtil.generateGraph(request, response,
-                createTotalKbChart(dataSetBuilder.build(), limit), 600, 200);
+                createMaxKbChart(dataSetBuilder.build(), limit), 600, 200);
     }
     
     public void doAvgKbGraph(StaplerRequest request, StaplerResponse response) 
@@ -645,8 +645,8 @@ public class PerformanceProjectAction implements Action {
                     nbBuildsToAnalyze--;
                     continue;
                 }
-                dataSetBuilderAvgKb.add(performanceReport.getAverageSizeInKb(),
-                        Messages.ProjectAction_AverageKB(), label);
+                dataSetBuilderAvgKb.add(performanceReport.getAverageKb(),
+                        Messages.ProjectAction_Average(), label);
             }
             nbBuildsToAnalyze--;
         }
@@ -1211,9 +1211,9 @@ public class PerformanceProjectAction implements Action {
                         Messages.ProjectAction_PercentageOfErrors(), label);
                 dataSet.add(report.countErrors(),
                         Messages.ProjectAction_Errors(), label);
-                dataSet.add(report.getTotalTrafficInKb(),
-                        Messages.ProjectAction_TotalTrafficKB(), label);
-                dataSet.add(report.getAverageSizeInKb(),
+                dataSet.add(report.getMaxKb(),
+                        Messages.ProjectAction_MaximumKB(), label);
+                dataSet.add(report.getAverageKb(),
                         Messages.ProjectAction_AverageKB(), label);
             }
             nbBuildsToAnalyze--;

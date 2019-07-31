@@ -74,7 +74,7 @@ public class TaurusParserTest {
         assertEquals("Check max", 1.71800 * 1000, report.getMax(), DELTA);
         assertEquals("Check average", (long) (0.45950 * 1000), report.getAverage());
         assertEquals("Check samples count", 666 + 11, report.samplesCount(), DELTA);
-        assertEquals("Check total KB", 6946463, report.getTotalTrafficInKb(), DELTA);
+        assertEquals("Check total KB", 6946463, report.getMaxKb(), DELTA);
     }
 
     private void checkReportDiff(PerformanceReport report) {

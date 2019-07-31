@@ -81,8 +81,8 @@ public class PerformanceReport extends AbstractReport implements Serializable,
     /**
      * The size of all samples combined, in kilobytes.
      */
-    private double totalSizeInKB = 0;
-    private double avgSizeInKB = 0;
+    private double maxKB = 0;
+    private double avgKB = 0;
     private long summarizerMin;
     private long summarizerMax;
     private long summarizerAvg;
@@ -181,8 +181,10 @@ public class PerformanceReport extends AbstractReport implements Serializable,
         if (isIncludeResponseTime(pHttpSample)) {
             totalDuration += pHttpSample.getDuration();
         }
-        totalSizeInKB += pHttpSample.getSizeInKb();
-        avgSizeInKB += pHttpSample.getAvgSizeInKb();
+        // KB reported as maximum of maxima and average of averages
+        if (pHttpSample.getSizeInKb() > maxKB)
+            maxKB = pHttpSample.getSizeInKb();
+        avgKB += pHttpSample.getAvgSizeInKb();
     }
 
     private boolean isIncluded(String name) {
@@ -214,7 +216,7 @@ public class PerformanceReport extends AbstractReport implements Serializable,
             samplesCount = sampleCount;
             Double testDuration = sample.getTestDuration();
             totalDuration = (testDuration == null) ? ((long) sample.getAverageResponseTime() * sampleCount) : (testDuration.longValue());
-            totalSizeInKB = sample.getBytes();
+            maxKB = sample.getBytes();
 
             average = (long) sample.getAverageResponseTime();
             perc50 = (long) sample.getPerc50();
@@ -279,11 +281,11 @@ public class PerformanceReport extends AbstractReport implements Serializable,
         return average;
     }
 
-    public double getAverageSizeInKb() {
+    public double getAverageKb() {
         if (samplesCount == 0) {
             return 0;
         }
-        return SafeMaths.roundTwoDecimals(SafeMaths.safeDivide(avgSizeInKB, samplesCount));
+        return SafeMaths.roundTwoDecimals(SafeMaths.safeDivide(avgKB, samplesCount));
     }
 
     /**
@@ -394,8 +396,8 @@ public class PerformanceReport extends AbstractReport implements Serializable,
         return perc100;
     }
 
-    public double getTotalTrafficInKb() {
-        return SafeMaths.roundTwoDecimals(totalSizeInKB);
+    public double getMaxKb() {
+        return SafeMaths.roundTwoDecimals(avgKB);
     }
 
     public long getMin() {

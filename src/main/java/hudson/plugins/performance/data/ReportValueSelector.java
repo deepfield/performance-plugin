@@ -35,16 +35,16 @@ public abstract class ReportValueSelector {
         if (graphType.equals(PerformancePublisher.AMU))
             return new SelectAverageKb();
         if (graphType.equals(PerformancePublisher.TMU))
-            return new SelectTotalKb();
+            return new SelectMaxKb();
         return new SelectAverage(); // default
     }
 
     // Public. The alternative is worse
-    public static class SelectTotalKb extends ReportValueSelector {
+    public static class SelectMaxKb extends ReportValueSelector {
 
         @Override
         public long getValue(AbstractReport report) {
-            return (long)((UriReport)report).getTotalTrafficInKb();
+            return (long)((UriReport)report).getMaxKb();
         }
 
         @Override
@@ -58,7 +58,7 @@ public abstract class ReportValueSelector {
 
         @Override
         public long getValue(AbstractReport report) {
-            return (long)((UriReport)report).getAverageSizeInKb();
+            return (long)((UriReport)report).getAverageKb();
         }
 
         @Override

@@ -26,8 +26,8 @@
                 <a href="./errorsGraph?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport}"  title="${%Click for larger image}">
                   <img class="trend" src="./errorsGraph?width=300&amp;height=225&amp;performanceReportPosition=${performanceReport}" width="300" height="225" />
                 </a>
-                <a href="./totalKbGraphPerTestCaseMode?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport}"  title="${%Click for larger image}">
-                  <img class="trend" src="./totalKbGraphPerTestCaseMode?width=300&amp;height=225&amp;performanceReportPosition=${performanceReport}" width="300" height="225" />
+                <a href="./maxKbGraphPerTestCaseMode?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport}"  title="${%Click for larger image}">
+                  <img class="trend" src="./maxKbGraphPerTestCaseMode?width=300&amp;height=225&amp;performanceReportPosition=${performanceReport}" width="300" height="225" />
                 </a>
                 <a href="./avgKbGraphPerTestCaseMode?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport}"  title="${%Click for larger image}">
                   <img class="trend" src="./avgKbGraphPerTestCaseMode?width=300&amp;height=225&amp;performanceReportPosition=${performanceReport}" width="300" height="225" />
@@ -55,8 +55,8 @@
                     <a href="./errorsGraph?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport}"  title="${%Click for larger image}">
                       <img class="trend" src="./errorsGraph?width=300&amp;height=225&amp;performanceReportPosition=${performanceReport}" width="300" height="225" />
                     </a>
-                    <a href="./totalKbGraph?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport}"  title="${%Click for larger image}">
-                      <img class="trend" src="./totalKbGraph?width=300&amp;height=225&amp;performanceReportPosition=${performanceReport}" width="300" height="225" />
+                    <a href="./maxKbGraph?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport}"  title="${%Click for larger image}">
+                      <img class="trend" src="./maxKbGraph?width=300&amp;height=225&amp;performanceReportPosition=${performanceReport}" width="300" height="225" />
                     </a>
                     <a href="./avgKbGraph?width=900&amp;height=550&amp;performanceReportPosition=${performanceReport}"  title="${%Click for larger image}">
                       <img class="trend" src="./avgKbGraph?width=300&amp;height=225&amp;performanceReportPosition=${performanceReport}" width="300" height="225" />

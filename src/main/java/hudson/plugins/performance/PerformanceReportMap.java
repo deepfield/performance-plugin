@@ -337,7 +337,7 @@ public class PerformanceReportMap implements ModelObject {
     }
 
 
-    public void doTotalKbGraphPerTestCaseMode(
+    public void doMaxKbGraphPerTestCaseMode(
             StaplerRequest request, StaplerResponse response) throws IOException {
         final String performanceReportNameFile = request.getParameter("performanceReportPosition");
         if (performanceReportNameFile == null) {
@@ -383,10 +383,10 @@ public class PerformanceReportMap implements ModelObject {
         String legendLimit = request.getParameter("legendLimit");
         int limit = (legendLimit != null && !legendLimit.isEmpty()) ? Integer.parseInt(legendLimit) : Integer.MAX_VALUE;
         ChartUtil.generateGraph(request, response,
-                createTotalKbChart(dataSetBuilder.build(), limit), 600, 200);
+                createMaxKbChart(dataSetBuilder.build(), limit), 600, 200);
     }
 
-    public void doTotalKbGraph(StaplerRequest request, StaplerResponse response)
+    public void doMaxKbGraph(StaplerRequest request, StaplerResponse response)
             throws IOException {
         final String performanceReportNameFile = request.getParameter("performanceReportPosition");
         if (performanceReportNameFile == null) {
@@ -416,11 +416,11 @@ public class PerformanceReportMap implements ModelObject {
                     continue;
                 }
 
-                dataSetBuilderAvgKb.add(performanceReport.getTotalTrafficInKb(),
-                        Messages.ProjectAction_TotalTrafficKB(), label);
+                dataSetBuilderAvgKb.add(performanceReport.getMaxKb(),
+                        Messages.ProjectAction_Maximum(), label);
         }
         ChartUtil.generateGraph(request, response,
-                createTotalKbChart(dataSetBuilderAvgKb.build()), 400, 200);
+                createMaxKbChart(dataSetBuilderAvgKb.build()), 400, 200);
     }
 
     public void doAvgKbGraphPerTestCaseMode(
@@ -502,8 +502,8 @@ public class PerformanceReportMap implements ModelObject {
                     continue;
                 }
 
-                dataSetBuilderAvgKb.add(performanceReport.getAverageSizeInKb(),
-                        Messages.ProjectAction_AverageKB(), label);
+                dataSetBuilderAvgKb.add(performanceReport.getAverageKb(),
+                        Messages.ProjectAction_Average(), label);
         }
         ChartUtil.generateGraph(request, response,
                 createAvgKbChart(dataSetBuilderAvgKb.build()), 400, 200);
@@ -550,12 +550,12 @@ public class PerformanceReportMap implements ModelObject {
         return PerformanceProjectAction.createErrorsChart(dataset);
     }
 
-    protected JFreeChart createTotalKbChart(CategoryDataset dataset) {
-        return PerformanceProjectAction.createTotalKbChart(dataset);
+    protected JFreeChart createMaxKbChart(CategoryDataset dataset) {
+        return PerformanceProjectAction.createMaxKbChart(dataset);
     }
 
-    protected JFreeChart createTotalKbChart(CategoryDataset dataset, int legendLimit) {
-        return PerformanceProjectAction.createTotalKbChart(dataset, legendLimit);
+    protected JFreeChart createMaxKbChart(CategoryDataset dataset, int legendLimit) {
+        return PerformanceProjectAction.createMaxKbChart(dataset, legendLimit);
     }
 
     protected JFreeChart createAvgKbChart(CategoryDataset dataset) {

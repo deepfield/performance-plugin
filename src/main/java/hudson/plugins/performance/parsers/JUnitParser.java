@@ -91,10 +91,10 @@ public class JUnitParser extends AbstractParser {
 			currentSample.setDate(new Date(0));
 		    }
                     
-                    // Add total mem usage to stats
+                    // Add max mem usage to stats
                     final String maxKbValue;
-                    if (attributes.getValue("totalbytes") != null) {
-                        maxKbValue = attributes.getValue("totalbytes");
+                    if (attributes.getValue("maxbytes") != null) {
+                        maxKbValue = attributes.getValue("maxbytes");
                     } else {
                         maxKbValue = "0";
                     }
