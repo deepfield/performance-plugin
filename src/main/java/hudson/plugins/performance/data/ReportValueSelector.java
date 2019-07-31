@@ -34,7 +34,7 @@ public abstract class ReportValueSelector {
             return new SelectPercentile();
         if (graphType.equals(PerformancePublisher.AMU))
             return new SelectAverageKb();
-        if (graphType.equals(PerformancePublisher.TMU))
+        if (graphType.equals(PerformancePublisher.MMU))
             return new SelectMaxKb();
         return new SelectAverage(); // default
     }
@@ -49,7 +49,7 @@ public abstract class ReportValueSelector {
 
         @Override
         public String getGraphType() {
-            return PerformancePublisher.TMU;
+            return PerformancePublisher.MMU;
         }
     }
 

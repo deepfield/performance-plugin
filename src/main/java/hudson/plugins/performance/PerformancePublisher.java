@@ -117,7 +117,7 @@ public class PerformancePublisher extends Recorder implements SimpleBuildStep {
 
     public static final String AMU = "AMU";
 
-    public static final String TMU = "TMU";
+    public static final String MMU = "MMU";
 
     public String optionType = "ART";
 

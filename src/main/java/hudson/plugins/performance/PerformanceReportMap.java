@@ -356,7 +356,7 @@ public class PerformanceReportMap implements ModelObject {
         // There is a better way to do this. Will I do it? No. Why? Read getPublisher() and find out.
         PerformancePublisher tmp = getPublisher();
         PerformancePublisher publisher = new PerformancePublisher(tmp.getSourceDataFiles());
-        publisher.setGraphType(PerformancePublisher.TMU);
+        publisher.setGraphType(PerformancePublisher.MMU);
         ReportValueSelector valueSelector = ReportValueSelector.get(publisher);
 
 
