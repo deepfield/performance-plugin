@@ -4,6 +4,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Job;
 import hudson.plugins.performance.PerformancePublisher;
 import hudson.plugins.performance.reports.AbstractReport;
+import hudson.plugins.performance.reports.UriReport;
 
 public abstract class ReportValueSelector {
 
@@ -31,7 +32,39 @@ public abstract class ReportValueSelector {
             return new SelectMedian();
         if (graphType.equals(PerformancePublisher.PRT))
             return new SelectPercentile();
+        if (graphType.equals(PerformancePublisher.AMU))
+            return new SelectAverageKb();
+        if (graphType.equals(PerformancePublisher.MMU))
+            return new SelectMaxKb();
         return new SelectAverage(); // default
+    }
+
+    // Public. The alternative is worse
+    public static class SelectMaxKb extends ReportValueSelector {
+
+        @Override
+        public long getValue(AbstractReport report) {
+            return (long)((UriReport)report).getMaxKb();
+        }
+
+        @Override
+        public String getGraphType() {
+            return PerformancePublisher.MMU;
+        }
+    }
+
+    // Public. The alternative is worse
+    public static class SelectAverageKb extends ReportValueSelector {
+
+        @Override
+        public long getValue(AbstractReport report) {
+            return (long)((UriReport)report).getAverageKb();
+        }
+
+        @Override
+        public String getGraphType() {
+            return PerformancePublisher.AMU;
+        }
     }
 
     private static class SelectAverage extends ReportValueSelector {

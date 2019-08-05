@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 public class JUnitParser extends AbstractParser {
 
     public static final String ISO8601_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    public boolean ignoreSkipped = true;
     
     @Extension
     public static class DescriptorImpl extends PerformanceReportParserDescriptor {
@@ -89,6 +90,35 @@ public class JUnitParser extends AbstractParser {
 		    } catch (Exception e) {
 			currentSample.setDate(new Date(0));
 		    }
+                    
+                    // Add max mem usage to stats
+                    final String maxKbValue;
+                    if (attributes.getValue("maxbytes") != null) {
+                        maxKbValue = attributes.getValue("maxbytes");
+                    } else {
+                        maxKbValue = "0";
+                    }
+                    
+                    try {
+                        currentSample.setSizeInKb(Double.valueOf(maxKbValue) / 1024d);
+		    } catch (Exception e) {
+                        // Do Nothing
+		    }
+                    
+                    // Add avg mem usage to stats
+                    final String avgKbValue;
+                    if (attributes.getValue("avgbytes") != null) {
+                        avgKbValue = attributes.getValue("avgbytes");
+                    } else {
+                        avgKbValue = "0";
+                    }
+                    
+                    try {
+                        currentSample.setAvgSizeInKb(Double.valueOf(avgKbValue) / 1024d);
+		    } catch (Exception e) {
+                        // Do Nothing
+		    }
+                    
                     String time = attributes.getValue("time");
                     currentSample.setDuration(parseDuration(time));
                     currentSample.setSuccessful(true);
@@ -98,6 +128,8 @@ public class JUnitParser extends AbstractParser {
                     currentSample.setErrorObtained(false);
                     currentSample.setSuccessful(false);
                     report.addSample(currentSample);
+                    status = 0;
+                } else if (ignoreSkipped && status != 0 && "skipped".equalsIgnoreCase(qName)) {
                     status = 0;
                 } else if ("error".equalsIgnoreCase(qName) && status != 0) {
                     currentSample.setErrorObtained(true);

@@ -123,7 +123,8 @@ public class UriReport extends AbstractReport implements Serializable, ModelObje
     private int samplesCount;
     protected String percentiles;
 
-    private double sizeInKb;
+    private double maxKB;
+    private double avgKB;
 
     public Object readResolve() {
         checkPercentileAndSet(0.0, perc0);
@@ -159,7 +160,10 @@ public class UriReport extends AbstractReport implements Serializable, ModelObje
         httpCodes.add(sample.getHttpCode()); // The Set implementation will ensure that no duplicates will be saved.
         summarizerSize += sample.getSummarizerSamples();
         summarizerErrors += sample.getSummarizerErrors();
-        sizeInKb += sample.getSizeInKb();
+        // KB reported as maximum of maxima and average of averages
+        if (sample.getSizeInKb() > maxKB)
+            maxKB = sample.getSizeInKb();
+        avgKB += sample.getAvgSizeInKb();
         
         if (start == null || sample.getDate().before(start)) {
             start = sample.getDate();
@@ -546,25 +550,25 @@ public class UriReport extends AbstractReport implements Serializable, ModelObje
         return !samples.isEmpty();
     }
 
-    public double getAverageSizeInKb() {
-        return SafeMaths.roundTwoDecimals(SafeMaths.safeDivide(sizeInKb, samplesCount()));
+    public double getAverageKb() {
+        return SafeMaths.roundTwoDecimals(SafeMaths.safeDivide(avgKB, samplesCount()));
     }
     
-    public double getTotalTrafficInKb() {
-        return SafeMaths.roundTwoDecimals(sizeInKb);
+    public double getMaxKb() {
+        return SafeMaths.roundTwoDecimals(maxKB);
     }
     
-    public double getAverageSizeInKbDiff() {
+    public double getAverageKbDiff() {
         if (lastBuildUriReport == null) {
             return 0;
         }
-        return SafeMaths.roundTwoDecimals(getAverageSizeInKb() - lastBuildUriReport.getAverageSizeInKb());
+        return SafeMaths.roundTwoDecimals(getAverageKb() - lastBuildUriReport.getAverageKb());
     }
     
-    public double getTotalTrafficInKbDiff() {
+    public double getMaxKbDiff() {
         if (lastBuildUriReport == null) {
             return 0;
         }
-        return SafeMaths.roundTwoDecimals(getTotalTrafficInKb() - lastBuildUriReport.getTotalTrafficInKb());
+        return SafeMaths.roundTwoDecimals(getMaxKb() - lastBuildUriReport.getMaxKb());
     }
 }

@@ -42,15 +42,15 @@
     </td>
 
     <td>
-    	${it.getAverageSizeInKb()}
-    	<sup class="${h.ifThenElse(it.getAverageSizeInKbDiff()>0,'red','green')}">
-            ${h.ifThenElse(it.getAverageSizeInKbDiff()>0,'+','')}${it.getAverageSizeInKbDiff()}
+    	${it.getAverageKb()}
+    	<sup class="${h.ifThenElse(it.getAverageKbDiff()>0,'red','green')}">
+            ${h.ifThenElse(it.getAverageKbDiff()>0,'+','')}${it.getAverageKbDiff()}
         </sup>
     </td>
     <td>
-    	${it.getTotalTrafficInKb()}
-    	<sup class="${h.ifThenElse(it.getTotalTrafficInKbDiff()>0,'red','green')}">
-            ${h.ifThenElse(it.getTotalTrafficInKbDiff()>0,'+','')}${it.getTotalTrafficInKbDiff()}
+    	${it.getMaxKb()}
+    	<sup class="${h.ifThenElse(it.getMaxKbDiff()>0,'red','green')}">
+            ${h.ifThenElse(it.getMaxKbDiff()>0,'+','')}${it.getMaxKbDiff()}
         </sup>
     </td>
 </j:jelly>
