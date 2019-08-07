@@ -397,7 +397,7 @@ public class PerformanceReport extends AbstractReport implements Serializable,
     }
 
     public double getMaxKb() {
-        return SafeMaths.roundTwoDecimals(avgKB);
+        return SafeMaths.roundTwoDecimals(maxKB);
     }
 
     public long getMin() {

@@ -43,11 +43,11 @@ public class JMeterCsvParserTest {
     public void testDateDateFormats() throws Exception {
         final JMeterCsvParser parser = new JMeterCsvParser(NO_GLOB, PerformanceReportTest.DEFAULT_PERCENTILES);
         PerformanceReport performanceReport = parseAndVerifyResult(parser, reportFile);
-        assertEquals(41.9, performanceReport.getMaxKb(), 0.01);
+        assertEquals(19.25, performanceReport.getMaxKb(), 0.01);
         performanceReport = parseAndVerifyResult(parser, reportFile2);
-        assertEquals(41.9, performanceReport.getMaxKb(), 0.01);
+        assertEquals(19.25, performanceReport.getMaxKb(), 0.01);
         performanceReport = parseAndVerifyResult(parser, reportFile3);
-        assertEquals(41.9, performanceReport.getMaxKb(), 0.01);
+        assertEquals(19.25, performanceReport.getMaxKb(), 0.01);
     }
 
     private PerformanceReport parseAndVerifyResult(JMeterCsvParser parser, File file) throws Exception {
