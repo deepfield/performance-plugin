@@ -49,4 +49,18 @@ public class JUnitParserTest {
         assertEquals("The source file contains 3 samples. These should all have been added to the performance report.", 3, result.samplesCount());
         assertEquals("The source file contains 2 failed samples. 1 test failure and 1 runtime error sample.", 2, result.countErrors());
     }
+
+    @Test
+    public void testCanParseJunitResultFileWithAvgAndMaxBytes() throws Exception {
+        final JUnitParser parser = new JUnitParser(null, PerformanceReportTest.DEFAULT_PERCENTILES);
+        final File reportFile = new File(getClass().getResource("/TEST-JUnitResults-avg-and-max-memory.xml").toURI());
+
+        // Execute system under test.
+        final PerformanceReport result = parser.parse(reportFile);
+
+        // Verify results.
+        assertNotNull(result);
+        assertEquals("Average Bytes", 1.75, result.getAverageKb(), 0.001);
+        assertEquals("Maximum Bytes", 5.30, result.getMaxKb(), 0.001);
+    }
 }
