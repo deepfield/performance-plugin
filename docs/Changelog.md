@@ -1,6 +1,17 @@
 <small>[<< Back to main page](./)</small>
 # Changelog
 
+## v3.19 (8th of March, 2021)
+- ADD: Option to enable/disable trend graphs within Performance Report [JENKINS-64638](https://issues.jenkins-ci.org/browse/JENKINS-64638)
+- ADD: Possibility yo explicitly set the PATH to `virtualenv`
+- FIX: travis ci
+
+## v3.18 (20th of July, 2020)
+- ADD: Locust report files parser
+- ADD: Response times scatter plot
+- ADD: Percentile and throughput chart to URI report page
+- ADD: Error chart to URI report page
+
 ## v3.17 (17th of June, 2019)
 - FIX: Fix ineffective report cache [JENKINS-57997](https://issues.jenkins-ci.org/browse/JENKINS-57997)
 - FIX: Remove redundant report loading

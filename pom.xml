@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>performance</artifactId>
-    <version>3.18-SNAPSHOT-DF-DEV</version>
+    <version>3.19-SNAPSHOT-DF-DEV</version>
     <packaging>hpi</packaging>
 
     <name>Performance Plugin</name>
@@ -190,6 +190,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
+                            <source>8</source>
                             <additionalparam>-Xdoclint:none</additionalparam>
                         </configuration>
                     </plugin>
