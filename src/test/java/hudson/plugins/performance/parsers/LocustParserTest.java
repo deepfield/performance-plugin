@@ -55,12 +55,12 @@ public class LocustParserTest {
         assertEquals(false, report.getUriReportMap().get("big").isExcludeResponseTime());
         assertEquals(370, report.getUriReportMap().get("big").getAverage());
         assertEquals(1, report.getUriReportMap().get("big").samplesCount());
-        assertEquals(638.0, report.getUriReportMap().get("big").getAverageSizeInKb(), 0.001);
+        assertEquals(638.0, report.getUriReportMap().get("big").getAverageKb(), 0.001);
     }
 
     @Test
     public void reportShouldContainTrafficSize() {
-        assertEquals(71464.0, report.getTotalTrafficInKb(), 0.001);
+        assertEquals(64219.0, report.getMaxKb(), 0.001);
     }
 
     @Test

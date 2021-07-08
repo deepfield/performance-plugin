@@ -67,9 +67,10 @@ public class LocustParser extends AbstractParser {
                 sample.setSummarizerMax(max);
                 sample.setSummarizerMin(min);
                 sample.setDuration(average);
-                sample.setSummarizerSamples(success);
+                sample.setSummarizerSamples(success+failures);
                 sample.setSummarizerErrors(errors);
                 sample.setSizeInKb(avgContentSize * success);
+                sample.setAvgSizeInKb(avgContentSize * success);
                 sample.setDate(now);
                 report.addSample(sample);
             }
