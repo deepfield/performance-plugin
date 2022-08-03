@@ -401,6 +401,13 @@ public class PerformanceReport extends AbstractReport implements Serializable,
         return SafeMaths.roundTwoDecimals(maxKB);
     }
 
+    public double getTotalTrafficInKb() {
+        /*
+        Created in order to maintain compatibility with the influxdb plugin
+        */
+        return getMaxKb();
+    }
+
     public long getMin() {
         if (perc0 == null) {
             perc0 = getDurationAt(ZERO_PERCENT);
