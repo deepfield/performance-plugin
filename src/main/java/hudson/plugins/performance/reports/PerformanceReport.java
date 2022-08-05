@@ -164,6 +164,7 @@ public class PerformanceReport extends AbstractReport implements Serializable,
             if (uriReport == null) {
                 uriReport = new UriReport(this, staplerUri, uri);
                 uriReport.setExcludeResponseTime(excludeResponseTime);
+                uriReport.setShowTrendGraphs(showTrendGraphs);
                 uriReportMap.put(staplerUri, uriReport);
             }
             uriReport.addHttpSample(pHttpSample);
@@ -398,6 +399,13 @@ public class PerformanceReport extends AbstractReport implements Serializable,
 
     public double getMaxKb() {
         return SafeMaths.roundTwoDecimals(maxKB);
+    }
+
+    public double getTotalTrafficInKb() {
+        /*
+        Created in order to maintain compatibility with the influxdb plugin
+        */
+        return getMaxKb();
     }
 
     public long getMin() {

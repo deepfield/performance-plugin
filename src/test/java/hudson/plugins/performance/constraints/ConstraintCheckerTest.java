@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -27,9 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import com.steadystate.css.parser.ParseException;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
@@ -50,7 +49,7 @@ public class ConstraintCheckerTest {
     ConstraintChecker constraintChecker = new ConstraintChecker(null, null);
 
     @InjectMocks
-    ConstraintSettings constraintSettings = new ConstraintSettings(null, false, false, false);
+    ConstraintSettings constraintSettings = new ConstraintSettings(null, false, false, false, 0);
 
     @Mock
     Jenkins jenkins;
@@ -172,12 +171,14 @@ public class ConstraintCheckerTest {
     PreviousResultsBlock rb3;
     PreviousResultsBlock rb4;
     PreviousResultsBlock rb5;
+    PreviousResultsBlock rb6;
     RelativeConstraint rc0;
     RelativeConstraint rc1;
     RelativeConstraint rc2;
     RelativeConstraint rc3;
     RelativeConstraint rc4;
     RelativeConstraint rc5;
+    RelativeConstraint rc6;
 
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
@@ -194,13 +195,12 @@ public class ConstraintCheckerTest {
      * @throws NoSuchMethodException
      * @throws SecurityException
      * @throws ParseException
-     * @throws java.text.ParseException
      */
 
     @Test
     public void happyPathForAbsoluteConstraints()
             throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException, IOException, InterruptedException, ParseException, java.text.ParseException {
+            InvocationTargetException, IOException, InterruptedException, ParseException {
 
         List<AbstractConstraint> constraints = new ArrayList<AbstractConstraint>();
         constraints.add(ac0);
@@ -232,7 +232,7 @@ public class ConstraintCheckerTest {
     @Test
     public void happyPathForRelativeConstraints()
             throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException, IOException, InterruptedException, ParseException, java.text.ParseException {
+            InvocationTargetException, IOException, InterruptedException, ParseException {
 
         List<AbstractConstraint> constraints = new ArrayList<AbstractConstraint>();
         constraints.add(rc0);
@@ -241,21 +241,24 @@ public class ConstraintCheckerTest {
         constraints.add(rc3);
         constraints.add(rc4);
         constraints.add(rc5);
+        constraints.add(rc6);
 
         ArrayList<ConstraintEvaluation> result = new ArrayList<ConstraintEvaluation>();
         result = constraintChecker.checkAllConstraints(constraints);
 
-        assertEquals(6, result.size());
+        assertEquals(7, result.size());
         assertEquals(rc0, result.get(0).getAbstractConstraint());
         assertEquals(rc1, result.get(1).getAbstractConstraint());
         assertEquals(rc2, result.get(2).getAbstractConstraint());
         assertEquals(rc3, result.get(3).getAbstractConstraint());
         assertEquals(rc4, result.get(4).getAbstractConstraint());
         assertEquals(rc5, result.get(5).getAbstractConstraint());
+        assertEquals(rc6, result.get(6).getAbstractConstraint());
 
         assertTrue(result.get(0).getAbstractConstraint().getSuccess());
         assertTrue(result.get(4).getAbstractConstraint().getSuccess());
         assertTrue(result.get(5).getAbstractConstraint().getSuccess());
+        assertTrue(result.get(6).getAbstractConstraint().getSuccess());
 
         assertEquals(11, result.get(0).getConstraintValue(), 0);
         assertEquals(10, result.get(3).getMeasuredValue(), 0);
@@ -264,7 +267,7 @@ public class ConstraintCheckerTest {
     @Test
     public void happyPathForMixedConstraints()
             throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException, IOException, InterruptedException, ParseException, java.text.ParseException {
+            InvocationTargetException, IOException, InterruptedException, ParseException {
 
         List<AbstractConstraint> constraints = new ArrayList<AbstractConstraint>();
         constraints.add(rc0);
@@ -302,7 +305,7 @@ public class ConstraintCheckerTest {
         /**
          * Mock behaviour of the builds
          */
-        constraintSettings = new ConstraintSettings(buildListener, true, true, true);
+        constraintSettings = new ConstraintSettings(buildListener, true, true, true, 3);
         when(this.buildListener.getLogger()).thenReturn(printStream);
         constraintChecker = new ConstraintChecker(constraintSettings, abstractBuildsList);
 
@@ -331,6 +334,7 @@ public class ConstraintCheckerTest {
         rb3 = new PreviousResultsBlock("false", "", "2015-01-01", "2015-02-01");
         rb4 = new PreviousResultsBlock("false", "", "2015-01-01 12:00", "2015-02-01");
         rb5 = new PreviousResultsBlock("false", "", "2015-01-01", "now");
+        rb6 = new PreviousResultsBlock("BASELINE", "", "", "");
 
         rc0 = new RelativeConstraint(Metric.AVERAGE, Operator.NOT_GREATER, "testResult0.xml", Escalation.INFORMATION, false,
                 ob0, rb0, 10);
@@ -346,6 +350,8 @@ public class ConstraintCheckerTest {
         rc5 = new RelativeConstraint(Metric.MINIMUM, Operator.NOT_LESS, "testResult1.xml", Escalation.ERROR, false, ob2,
                 rb5, 10);
         rc5.setSpecifiedTestCase(false);
+        rc6 = new RelativeConstraint(Metric.AVERAGE, Operator.NOT_GREATER, "testResult0.xml", Escalation.INFORMATION, false,
+                ob0, rb0, 10); // same as rc0 but against baseline build
 
         abstractBuildsList.add(abstractBuild0);
         abstractBuildsList.add(abstractBuild1);

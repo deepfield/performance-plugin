@@ -1,6 +1,5 @@
 package hudson.plugins.performance.build;
 
-import com.google.common.base.Throwables;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -23,7 +22,7 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +84,7 @@ public class PerformanceTestBuild extends Builder implements SimpleBuildStep {
     private boolean useBztExitCode = true;
     private String bztVersion = "";
     private String workingDirectory = "";
+    private String virtualEnvCommand = "";
     /**
      * Use 'workingDirectory' for set bzt working directory
      */
@@ -115,7 +115,7 @@ public class PerformanceTestBuild extends Builder implements SimpleBuildStep {
 
 
     @Override
-    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
+    public void perform(@NonNull Run<?, ?> run, @NonNull FilePath workspace, @NonNull Launcher launcher, @NonNull TaskListener listener) throws InterruptedException, IOException {
         PrintStream logger = listener.getLogger();
         EnvVars envVars = run.getEnvironment(listener);
         addPipelineEnvVars(run, envVars);
@@ -223,7 +223,7 @@ public class PerformanceTestBuild extends Builder implements SimpleBuildStep {
     }
 
     protected void generatePerformanceTrend(String path, Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
-        new PerformancePublisher(path + "/aggregate-results.xml", -1, -1, "", 0, 0, 0, 0, 0, false, "", false, false, false, false, null).
+        new PerformancePublisher(path + "/aggregate-results.xml", -1, -1, "", 0, 0, 0, 0, 0, false, "", false, false, false, false,true, null).
                 perform(run, workspace, launcher, listener);
     }
 
@@ -411,13 +411,20 @@ public class PerformanceTestBuild extends Builder implements SimpleBuildStep {
         return new String[]{getVirtualenvPath(workspace) + "bzt", HELP_OPTION};
     }
 
+    private String getVirtualEnvCommand(EnvVars envVars) {
+        return virtualEnvCommand == null || virtualEnvCommand.trim().isEmpty() ? VIRTUALENV_COMMAND : envVars.expand(virtualEnvCommand);
+    }
+
     public int runCmd(String[] commands, FilePath workspace, OutputStream logger, Launcher launcher, EnvVars envVars) throws InterruptedException, IOException {
+        if (commands[0].equals(VIRTUALENV_COMMAND)) {
+            commands[0] = getVirtualEnvCommand(envVars);
+        }
         try {
             return launcher.launch().cmds(commands).envs(envVars).stdout(logger).stderr(logger).pwd(workspace).start().join();
         } catch (IOException ex) {
             logger.write(ex.getMessage().getBytes());
             if (printDebugOutput) {
-                logger.write(Throwables.getStackTraceAsString(ex).getBytes());
+                logger.write(Functions.printThrowable(ex).getBytes());
             }
             return 1;
         }
@@ -508,5 +515,14 @@ public class PerformanceTestBuild extends Builder implements SimpleBuildStep {
     @DataBoundSetter
     public void setWorkingDirectory(String workingDirectory) {
         this.workingDirectory = workingDirectory;
+    }
+
+    public String getVirtualEnvCommand() {
+        return virtualEnvCommand;
+    }
+
+    @DataBoundSetter
+    public void setVirtualEnvCommand(String virtualEnvCommand) {
+        this.virtualEnvCommand = virtualEnvCommand;
     }
 }

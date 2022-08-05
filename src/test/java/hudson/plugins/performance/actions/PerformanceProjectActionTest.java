@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.kohsuke.stapler.StaplerRequest;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -53,7 +53,7 @@ public class PerformanceProjectActionTest {
         assertFalse(performanceProjectAction.ifModePerformancePerTestCaseUsed());
         assertTrue(performanceProjectAction.ifModeThroughputUsed());
 
-        freeStyleProject.getPublishersList().add(new PerformancePublisher("", 0, 0, "", 0.0, 0.0, 0.0, 0.0, 0, false, "", true, false, false, true, null));
+        freeStyleProject.getPublishersList().add(new PerformancePublisher("", 0, 0, "", 0.0, 0.0, 0.0, 0.0, 0, false, "", true, false, false, true,false, null));
         assertFalse(performanceProjectAction.ifModePerformancePerTestCaseUsed());
         assertTrue(performanceProjectAction.ifModeThroughputUsed());
     }

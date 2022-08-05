@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -51,6 +51,7 @@ public class PerformanceReportMapTest extends AbstractGraphGenerationTest {
         PerformanceReportMap reportMap = new PerformanceReportMap(performanceBuildAction, mock(TaskListener.class));
         assertTrue(reportMap.ifModeThroughputUsed());
         assertFalse(reportMap.ifModePerformancePerTestCaseUsed());
+        assertFalse(reportMap.ifShowTrendGraphsUsed());
         assertEquals(performanceBuildAction, reportMap.getBuildAction());
         assertEquals("Performance", reportMap.getDisplayName());
         assertEquals("performance", reportMap.getUrlName());

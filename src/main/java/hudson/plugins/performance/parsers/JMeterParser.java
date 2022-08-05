@@ -90,11 +90,13 @@ public class JMeterParser extends AbstractParser {
      */
     PerformanceReport parseXml(File reportFile) throws Exception {
         final SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         factory.setValidating(false);
         factory.setNamespaceAware(false);
 
         final PerformanceReport report = createPerformanceReport();
         report.setExcludeResponseTime(excludeResponseTime);
+        report.setShowTrendGraphs(showTrendGraphs);
         report.setReportFileName(reportFile.getName());
 
         factory.newSAXParser().parse(reportFile, new DefaultHandler() {

@@ -51,10 +51,12 @@ public class TaurusParser extends AbstractParser {
     private PerformanceReport readFromXML(File reportFile) throws Exception {
         final PerformanceReport report = createPerformanceReport();
         report.setExcludeResponseTime(excludeResponseTime);
+        report.setShowTrendGraphs(showTrendGraphs);
         report.setReportFileName(reportFile.getName());
 
         DocumentBuilderFactory dbFactory
                 = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(reportFile);
         doc.getDocumentElement().normalize();

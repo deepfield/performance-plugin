@@ -4,18 +4,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
-
-import com.google.common.io.Files;
 
 import hudson.EnvVars;
 import hudson.FilePath;
@@ -41,7 +40,7 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
         FreeStyleProject project = createFreeStyleProject();
 
         FreeStyleBuildExt buildExt = new FreeStyleBuildExt(project);
-        FilePath workspace = new FilePath(Files.createTempDir());
+        FilePath workspace = new FilePath(Files.createTempDirectory(null).toFile());
         buildExt.setWorkspace(workspace);
         buildExt.onStartBuilding();
 
@@ -79,7 +78,7 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
         FreeStyleProject project = createFreeStyleProject();
 
         FreeStyleBuildExt buildExt = new FreeStyleBuildExt(project);
-        FilePath workspace = new FilePath(Files.createTempDir());
+        FilePath workspace = new FilePath(Files.createTempDirectory(null).toFile());
         buildExt.setWorkspace(workspace);
         buildExt.onStartBuilding();
 
@@ -118,7 +117,7 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
         FreeStyleProject project = createFreeStyleProject();
 
         FreeStyleBuildExt buildExt = new FreeStyleBuildExt(project);
-        FilePath workspace = new FilePath(Files.createTempDir());
+        FilePath workspace = new FilePath(Files.createTempDirectory(null).toFile());
         buildExt.setWorkspace(workspace);
         buildExt.onStartBuilding();
 
@@ -156,7 +155,7 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
         FreeStyleProject project = createFreeStyleProject();
 
         FreeStyleBuildExt buildExt = new FreeStyleBuildExt(project);
-        FilePath workspace = new FilePath(Files.createTempDir());
+        FilePath workspace = new FilePath(Files.createTempDirectory(null).toFile());
         buildExt.setWorkspace(workspace);
         buildExt.onStartBuilding();
 
@@ -196,6 +195,9 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
 
         @Override
         public int runCmd(String[] commands, FilePath workspace, OutputStream logger, Launcher launcher, EnvVars envVars) throws InterruptedException, IOException {
+            if (launcher instanceof Launcher.DummyLauncher) {
+                super.runCmd(commands, workspace, logger, launcher, envVars);
+            }
             this.commands.add(commands);
             return 0;
         }
@@ -209,7 +211,7 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
         }
 
         @Override
-        public void setWorkspace(@Nonnull FilePath ws) {
+        public void setWorkspace(@NonNull FilePath ws) {
             super.setWorkspace(ws);
         }
 
@@ -256,6 +258,13 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
         assertTrue(testBuild.isGeneratePerformanceTrend());
         assertTrue(testBuild.isUseBztExitCode());
         assertTrue(testBuild.isAlwaysUseVirtualenv());
+
+        testBuild.setVirtualEnvCommand("");
+        assertEquals("", testBuild.getVirtualEnvCommand());
+        testBuild.setVirtualEnvCommand("/hardcoded/path/to/virtualenv");
+        assertEquals("/hardcoded/path/to/virtualenv", testBuild.getVirtualEnvCommand());
+        testBuild.setVirtualEnvCommand("$VARIABLE_PATH/virtualenv");
+        assertEquals("$VARIABLE_PATH/virtualenv", testBuild.getVirtualEnvCommand());
     }
 
 
@@ -264,7 +273,7 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
         String path = getClass().getResource("/performanceTest.yml").getPath();
 
         WorkflowJob p = jenkins.createProject(WorkflowJob.class, "p");
-        FilePath workspace = new FilePath(Files.createTempDir());
+        FilePath workspace = new FilePath(Files.createTempDirectory(null).toFile());
         p.createExecutable();
         Run run = p.getFirstBuild();
         String args = new File(path).getAbsolutePath() + ' ' + "-o modules.jmeter.plugins=[] -o services=[]";
@@ -302,7 +311,7 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
         String path = getClass().getResource("/performanceTestWithFailCriteria.yml").getPath();
 
         WorkflowJob p = jenkins.createProject(WorkflowJob.class, "p");
-        FilePath workspace = new FilePath(Files.createTempDir());
+        FilePath workspace = new FilePath(Files.createTempDirectory(null).toFile());
         p.createExecutable();
         Run run = p.getFirstBuild();
         String args = new File(path).getAbsolutePath() + ' ' + "-o modules.jmeter.plugins=[] -o services=[]" ;
@@ -355,7 +364,7 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
     @Test
     public void testPWD() throws Exception {
         WorkflowJob p = jenkins.createProject(WorkflowJob.class, "p");
-        File buildWorkspace = Files.createTempDir();
+        File buildWorkspace = Files.createTempDirectory(null).toFile();
         FilePath workspace = new FilePath(buildWorkspace);
         p.createExecutable();
         Run run = p.getFirstBuild();
@@ -392,5 +401,132 @@ public class PerformanceTestBuildTest extends HudsonTestCase {
         testBuild.perform(run, workspace,  createLocalLauncher(), new BuildListenerAdapter(taskListener));
         jobLog = new String(stream.toByteArray());
         assertTrue(jobLog, jobLog.contains("Cannot create working directory because of error: Failed to mkdirs: /rootWorkspace"));
+    }
+
+    private void resetVirtualEnvCommands() {
+        PerformanceTestBuild.CHECK_VIRTUALENV_COMMAND[0] = PerformanceTestBuild.VIRTUALENV_COMMAND;
+        PerformanceTestBuild.CREATE_LOCAL_PYTHON_COMMAND_WITH_SYSTEM_PACKAGES_OPTION[0] = PerformanceTestBuild.VIRTUALENV_COMMAND;
+        PerformanceTestBuild.CREATE_LOCAL_PYTHON_COMMAND[0] = PerformanceTestBuild.VIRTUALENV_COMMAND;
+    }
+    @Test
+    public void testDefaultVirtualEnvCommand() throws Exception {
+        resetVirtualEnvCommands();
+        String path = getClass().getResource("/performanceTest.yml").getPath();
+
+        FreeStyleProject project = createFreeStyleProject();
+
+        FreeStyleBuildExt buildExt = new FreeStyleBuildExt(project);
+        FilePath workspace = new FilePath(Files.createTempDirectory(null).toFile());
+        buildExt.setWorkspace(workspace);
+        buildExt.onStartBuilding();
+
+        buildExt.getRootDir().mkdirs();
+
+        PerformanceTestBuildExt buildTest = new PerformanceTestBuildExt(new File(path).getAbsolutePath());
+        buildTest.setGeneratePerformanceTrend(false);
+        buildTest.setPrintDebugOutput(true);
+        buildTest.setUseSystemSitePackages(false);
+        buildTest.setUseBztExitCode(false);
+        buildTest.setAlwaysUseVirtualenv(true);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        StreamTaskListener taskListener = new StreamTaskListener(stream);
+        buildTest.perform(buildExt, buildExt.getWorkspace(), new Launcher.DummyLauncher(taskListener), new BuildListenerAdapter(taskListener));
+
+        Iterator<Publisher> iterator = project.getPublishersList().iterator();
+        StringBuilder builder = new StringBuilder("\n\nList publishers:\n");
+        while (iterator.hasNext()) {
+            builder.append(iterator.next().getClass().getName()).append("\n");
+        }
+
+        String jobLog = new String(stream.toByteArray()) + builder.toString();
+
+        assertEquals(jobLog, Result.SUCCESS, buildExt.getResult());
+        assertEquals(jobLog, 5, buildTest.commands.size());
+        assertTrue("Command should have been 'virtualenv', but instead it was: '" + buildTest.commands.get(0)[0] + "'",
+                buildTest.commands.get(0)[0].equals("virtualenv"));
+        resetVirtualEnvCommands();
+    }
+
+    @Test
+    public void testHardcodedVirtualEnvCommand() throws Exception {
+        resetVirtualEnvCommands();
+        String path = getClass().getResource("/performanceTest.yml").getPath();
+
+        FreeStyleProject project = createFreeStyleProject();
+
+        FreeStyleBuildExt buildExt = new FreeStyleBuildExt(project);
+        FilePath workspace = new FilePath(Files.createTempDirectory(null).toFile());
+        buildExt.setWorkspace(workspace);
+        buildExt.onStartBuilding();
+
+        buildExt.getRootDir().mkdirs();
+
+        PerformanceTestBuildExt buildTest = new PerformanceTestBuildExt(new File(path).getAbsolutePath());
+        buildTest.setGeneratePerformanceTrend(false);
+        buildTest.setPrintDebugOutput(true);
+        buildTest.setUseSystemSitePackages(false);
+        buildTest.setUseBztExitCode(false);
+        buildTest.setAlwaysUseVirtualenv(true);
+        buildTest.setVirtualEnvCommand("/path/to/virtualenv");
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        StreamTaskListener taskListener = new StreamTaskListener(stream);
+        buildTest.perform(buildExt, buildExt.getWorkspace(), new Launcher.DummyLauncher(taskListener), new BuildListenerAdapter(taskListener));
+
+        Iterator<Publisher> iterator = project.getPublishersList().iterator();
+        StringBuilder builder = new StringBuilder("\n\nList publishers:\n");
+        while (iterator.hasNext()) {
+            builder.append(iterator.next().getClass().getName()).append("\n");
+        }
+
+        String jobLog = new String(stream.toByteArray()) + builder.toString();
+
+        assertEquals(jobLog, Result.SUCCESS, buildExt.getResult());
+        assertEquals(jobLog, 5, buildTest.commands.size());
+        assertTrue("Command should have been '/path/to/virtualenv', but instead it was: '" + buildTest.commands.get(0)[0] + "'",
+                buildTest.commands.get(0)[0].equals("/path/to/virtualenv"));
+        resetVirtualEnvCommands();
+    }
+
+    @Test
+    public void testVariableVirtualEnvCommand() throws Exception {
+        resetVirtualEnvCommands();
+        String path = getClass().getResource("/performanceTest.yml").getPath();
+
+        FreeStyleProject project = createFreeStyleProject();
+
+        FreeStyleBuildExt buildExt = new FreeStyleBuildExt(project);
+        FilePath workspace = new FilePath(Files.createTempDirectory(null).toFile());
+        buildExt.setWorkspace(workspace);
+        buildExt.onStartBuilding();
+
+        buildExt.getRootDir().mkdirs();
+
+        PerformanceTestBuildExt buildTest = new PerformanceTestBuildExt(new File(path).getAbsolutePath());
+        buildTest.setGeneratePerformanceTrend(false);
+        buildTest.setPrintDebugOutput(true);
+        buildTest.setUseSystemSitePackages(false);
+        buildTest.setUseBztExitCode(false);
+        buildTest.setAlwaysUseVirtualenv(true);
+        buildTest.setVirtualEnvCommand("$WORKSPACE/virtualenv");
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        StreamTaskListener taskListener = new StreamTaskListener(stream);
+        buildTest.perform(buildExt, buildExt.getWorkspace(), new Launcher.DummyLauncher(taskListener), new BuildListenerAdapter(taskListener));
+
+        Iterator<Publisher> iterator = project.getPublishersList().iterator();
+        StringBuilder builder = new StringBuilder("\n\nList publishers:\n");
+        while (iterator.hasNext()) {
+            builder.append(iterator.next().getClass().getName()).append("\n");
+        }
+
+        String jobLog = new String(stream.toByteArray()) + builder.toString();
+
+        assertEquals(jobLog, Result.SUCCESS, buildExt.getResult());
+        assertEquals(jobLog, 5, buildTest.commands.size());
+        assertTrue("Command should have been '" + workspace + "/virtualenv', but instead it was: '" + buildTest.commands.get(0)[0] + "'",
+                buildTest.commands.get(0)[0].equals(workspace + "/virtualenv"));
+        resetVirtualEnvCommands();
     }
 }

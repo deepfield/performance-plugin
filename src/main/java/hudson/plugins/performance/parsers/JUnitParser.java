@@ -52,12 +52,14 @@ public class JUnitParser extends AbstractParser {
     PerformanceReport parse(File reportFile) throws Exception {
 
         final SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         factory.setValidating(false);
         factory.setNamespaceAware(false);
 
         final SAXParser parser = factory.newSAXParser();
         final PerformanceReport report = createPerformanceReport();
         report.setExcludeResponseTime(excludeResponseTime);
+        report.setShowTrendGraphs(showTrendGraphs);
         report.setReportFileName(reportFile.getName());
         parser.parse(reportFile, new DefaultHandler() {
             private HttpSample currentSample;
